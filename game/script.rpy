@@ -1,7 +1,7 @@
-﻿# The script of the game goes in this file.
+# The script of the game goes in this file.
 
-#Characters: 
-define r = Character('????', color="#c8ffc8")
+# Characters: 
+define r = Character('Nick the NPC', color="#c8ffc8")
 image r = "images/Villager.png"
 
 define m = Character('Mackenzeighlynnabelle')
@@ -33,10 +33,9 @@ default has_cheese = False
 default has_gravel = False
 default has_dynamite = False
 default tools_chosen = 0
+default happy_music_started = False
 
-
-
-#Scenes:
+# Scenes:
 image town_capybara = "images/townCapybara.png"
 
 transform town_bg_zoomed_out:
@@ -67,14 +66,14 @@ transform Grafat_higher:
     yalign 0.5
 
 transform Vlad_higher:
-    zoom 1.10
+    zoom 2
     xalign 0.5
     yalign 0.5
 
 transform monster_higher:
     zoom 2.00
     xalign 0.5
-    yalign 0.5
+    yalign 0.58
 
 transform monster_hit_shake:
     xoffset 0
@@ -100,21 +99,26 @@ transform monster_chase_shake:
 label start:
     scene black
 
+    # music will start later once a forest or town background appears
+    # (see conditional play below)
 
     "{cps=25}...{/cps}"
     "{cps=25}Long before time had a name, there rested a humble village in the Northern Lands.{/cps}"
-    "{cps=25}Inhabiting this village were little, cute, adorable Capybaras!{cps=25}"
-    "{cps=25}For a long time, the little town prospered, never having to worry about food or resources, until… recently.{cps=25}"
-    "{cps=25}A landslide had blocked off major trade routes and left the village, resources were left scarce and draining.{cps=25}"
+    "{cps=25}Inhabiting this village were little, cute, adorable Capybaras!{/cps}"
+    "{cps=25}For a long time, the little town prospered, never having to worry about food or resources, until… recently.{/cps}"
+    "{cps=25}A landslide had blocked off major trade routes and left the village, resources were left scarce and draining.{/cps}"
     "{cps=25}Passing through the Northern Lands during your journey, you stop at a small village to rest and resupply your stash.{/cps}"
     
     scene town_capybara at town_bg_zoomed_out
     with dissolve
+    if not happy_music_started:
+        play music "audio/happy.mp3" loop
+        $ happy_music_started = True
     show r at villager_higher
 
     r "{cps=25}Adventurer! Thank heavens you passed by! We are in desperate need of aid.{/cps}"
     r "{cps=25}A landslide has blocked off our most valuable trade route, leaving us running out of diamonds!{/cps}"
-    r "{cps=25}Some of us Capy’s were gonna go mining and we need help we can get!{/cps}"
+    r "{cps=25}Some of us Capy's were gonna go mining and we need help we can get!{/cps}"
    
     menu:
         "Are you in?"
@@ -131,10 +135,13 @@ label same_outcome:
     scene black
     with fade
 
+    stop music fadeout 1.5
+
     "{cps=25}You follow the mysterious villager as he leads you to the mines.{/cps}"
 
     scene cave at cave_bg_zoomed_out
     with dissolve
+    play music "audio/scary.mp3" loop
     "{cps=25}As you step into the mine, you are encountered with 3 different capybaras.{/cps}"
     show m at Mackenzeighlynnabelle_higher
     "{cps=25}A mage, named Mackenzeighlynnabelle,{/cps}"
@@ -151,7 +158,7 @@ label same_outcome:
         "Who would you like to accompany?"
 
         "Mackenzeighlynnabelle":
-            jump mackenzie_story    
+            jump mackenzie_story
 
         "Granat":
             jump grafat_story
@@ -159,7 +166,7 @@ label same_outcome:
         "Vlad":
             jump vlad_story
 
-#Mackenzie Story Start:
+# Mackenzie Story Start:
 label mackenzie_story:
     "{cps=25}Mackenzeighlynnabelle smiles and steps forward.{/cps}"
 
@@ -173,9 +180,9 @@ label mackenzie_story:
         "Who are you?":
             show m happy at Mackenzeighlynnabelle_higher
             with dissolve
-            m "{cps=25}I’m Mackenzeighlynnabelle, a mage living in the village! You can call me Mackenzie.{/cps}"
+            m "{cps=25}I'm Mackenzeighlynnabelle, a mage living in the village! You can call me Mackenzie.{/cps}"
             m "{cps=25}I enjoy helping villagers with daily tasks using my magic.{/cps}"
-            m "{cps=25}It’s a shame that the trade routes got blocked off.{/cps}"
+            m "{cps=25}It's a shame that the trade routes got blocked off.{/cps}"
             m "{cps=25}Anyways, how about we embark on our journey!{/cps}"
             show m neutral at Mackenzeighlynnabelle_higher
             with dissolve
@@ -199,8 +206,10 @@ label mackenzie_story1:
             jump mackenzie_story2
 
         "The Rocks":
+            show m at Mackenzeighlynnabelle_higher
             m "{cps=25}Hey, I think I saw footsteps over here…{/cps}"
             m "{cps=25}Let me go look.{/cps}"
+            hide m
             "{cps=25}In a split second, Mackenzie disappears.{/cps}"
             "{cps=25}Startled, you start trying to find where she went.{/cps}"
             jump mackenzie_story3
@@ -223,7 +232,10 @@ label mackenzie_story2_1:
     "{cps=25}CRASH!!!{/cps}"
     with vpunch
     hide m
+    play sound "audio/monster.mp3"
     show monster at monster_higher
+    with hpunch
+    pause 0.20
     "{cps=25}ARGAHRHAHAGHRHAGHGRHAHGRAHRGAHR{/cps}"
     "{cps=25}A grotesque monster burrows out from the wall. Surrounding you and Mackenzie.{/cps}"
 
@@ -241,6 +253,7 @@ label mackenzie_story2_1:
             "{cps=25}Confused on what happened, you open your eyes.{/cps}"
             "{cps=25}You see the monster… without a head.{/cps}"
             hide monster
+            show m yay at Mackenzeighlynnabelle_higher
             "{cps=25}Looking at Mackenzie, staff in hand, you realize she has decapitated the monster using her magic.{/cps}"
             jump mackenzie_ending
 
@@ -248,19 +261,54 @@ label mackenzie_story2_1:
             "{cps=25}Grabbing Mackenzie, you sprint for the exit, trying to dodge, weave and escape through the little slivers of space.{/cps}"
             "{cps=25}Just as you approach the exit of the cave, all sense of hope is immediately crushed.{/cps}"
             "{cps=25}SLAM!{/cps}"
+            with hpunch
+            play sound "audio/monster.mp3"
+            show monster:
+                zoom 2.45
+                xalign 0.5
+                yalign 0.68
+            with vpunch
+            pause 0.12
             "{cps=25}You open your eyes, face to face with the monster.{/cps}"
             "{cps=25}Horrified you let out a blood curdling scream as the monster opens its mouth.{/cps}"
             "{cps=25}Your vision goes black.{/cps}"
+            scene black
+            with fade
+            stop skipping
+            "{cps=25}Cornered, you listen to the disgusting groans and breaths of this... thing...{/cps}"
+            "{cps=25}This can't be the end... right?{/cps}"
+            "{cps=25}Is this my punishment? For running away? For being a coward?{/cps}"
+            "{cps=25}I want another chance...{/cps}"
+            "{cps=25}As his face nears yours, you close your eyes...{/cps}"
+            "{cps=25}You hear its jaw cracking as it opens it's inhumane mouth{/cps}"
+            "{cps=25}You feel a drop of... saliva? blood?{/cps}"
+            "{cps=25}Drip... Drip... Drip...{/cps}"
+            "{cps=25}The nothingness of the abyss surrounds you...{/cps}"
+            "{cps=25}Drip... Drip... Drip... Drip... Drip... Drip...{/cps}"
+            "{cps=25}These loathsome sounds...{/cps}"
+            "{cps=25}Make it stop...{/cps}"
+            "{cps=25}CRUNCH{/cps}"
+            play sound "audio/monster.mp3"
+            show monster at monster_higher, monster_hit_shake
+            with hpunch
+            pause 0.22
+            hide monster
+            scene black
+            with vpunch
+            "{cps=25}THE END...?{/cps}"
             return
 
 label mackenzie_ending:
+    stop music fadeout 1.5
     scene black
     with fade
+
     "{cps=25}Having defeated the monster, you and Mackenzie sprint for the exit.{/cps}"
     "{cps=25}With the bag of diamonds hauled on your bag, you let out a giant sigh of relief seeing the blue sky and puffy clouds.{/cps}"
     "{cps=25}Returning to the village, capybaras crowd around you, exclaiming in cries of celebration.{/cps}"
     "{cps=25}You have managed to bring back enough diamonds to support the village for at least 5 years.{/cps}"
     "{cps=25}Relieved, you make your way out of the village to continue your journey but are held back by the villagers, offering hospitality and celebration to honour you{/cps}"
+    "{cps=25}THE END...?{/cps}"
     return
 
 label mackenzie_story3:
@@ -278,7 +326,12 @@ label mackenzie_story3_1:
     "{cps=25}With the ground starting to shake, you dash forward after hearing the screams of who you think is Mackenzie.{/cps}"
     "{cps=25}Bolting forward, you come across Mackenzie surrounded by a grotesque monster, walls collapsed.{/cps}"
     hide m
+    "{cps=25}CRASH!!{/cps}"
+    with vpunch
+    play sound "audio/monster.mp3"
     show monster at monster_higher
+    with hpunch
+    pause 0.20
     "{cps=25}ARGAHRHAHAGHRHAGHGRHAHGRAHRGAHR{/cps}"
 
     menu:
@@ -291,12 +344,34 @@ label mackenzie_story3_1:
             "{cps=25}You frantically try to dig up rocks to access an escape route.{/cps}"
             hide monster
             show m scared at Mackenzeighlynnabelle_higher
-            "{cps=25}Looking behind you, Mackenzie’s body is limp on the ground. The screams stop.{/cps}"
+            "{cps=25}Looking behind you, Mackenzie's body is limp on the ground. The screams stop.{/cps}"
             scene black
             with fade
+            stop skipping
             "{cps=25}Inch by inch, the monster creeps closer and closer, unphased by your shouts.{/cps}"
             "{cps=25}You try to fight back, but without magic your sword swings do almost nothing.{/cps}"
-            "{cps=25}SMASH{/cps}"
+            "{cps=25}Cornered, you listen to the disgusting groans and breaths of this... thing...{/cps}"
+            "{cps=25}This can't be the end... right?{/cps}"
+            "{cps=25}Is this my punishment? For running away? For being a coward?{/cps}"
+            "{cps=25}I want another chance...{/cps}"
+            "{cps=25}Please... I'm... Sorry...{/cps}"
+            "{cps=25}As his face nears yours, you close your eyes...{/cps}"
+            "{cps=25}You hear its jaw cracking as it opens it's inhumane mouth{/cps}"
+            "{cps=25}You feel a drop of... saliva? blood?{/cps}"
+            "{cps=25}Drip... Drip... Drip...{/cps}"
+            "{cps=25}The nothingness of the abyss surrounds you...{/cps}"
+            "{cps=25}Drip... Drip... Drip... Drip... Drip... Drip...{/cps}"
+            "{cps=25}These loathsome sounds...{/cps}"
+            "{cps=25}Make it stop...{/cps}"
+            "{cps=25}CRUNCH{/cps}"
+            play sound "audio/monster.mp3"
+            show monster at monster_higher, monster_hit_shake
+            with hpunch
+            pause 0.22
+            hide monster
+            scene black
+            with vpunch
+            "{cps=10}THE END...?{/cps}"
             return
 
         "Help Mackenzie":
@@ -308,17 +383,17 @@ label mackenzie_story3_1:
             "{cps=25}You brace yourself and shut your eyes.{/cps}"
             "{cps=25}Peeking out, you see the monster standing still for a second... then collapsing.{/cps}"
             "{cps=25}Standing behind it, you see Mackenzie with her staff still in hand.{/cps}"
+            hide monster
+            with fade
             show m yay at Mackenzeighlynnabelle_higher
+            with fade
             "{cps=25}Behind the monster, you spot a giant vein of diamonds.{/cps}"
             "{cps=25}Excited, you quickly mine the diamonds and pack your bag.{/cps}"
             jump mackenzie_ending
-    
-#Mackenzie Story End
 
+# Grafat Story Start:
 
-#Grafat Story Start:
-
-label grafat_story:   
+label grafat_story:
     show g neutral at Grafat_higher
 
     menu:
@@ -330,14 +405,13 @@ label grafat_story:
         "Who are you?":
             show g happy at Grafat_higher
             with dissolve
-            g "{cps=25}I’m Graf Granat, the village's strongest warrior!{/cps}"
-            g "{cps=25}I’ve been protecting the village from monsters of all sorts with my trusty axe.{/cps}"
+            g "{cps=25}I'm Graf Granat, the village's strongest warrior!{/cps}"
+            g "{cps=25}I've been protecting the village from monsters of all sorts with my trusty axe.{/cps}"
             g "{cps=25}That is… until the mountain decided to block off all of our trade routes…{/cps}"
-            g "{cps=25}Anyways let’s get going and find some diamonds eh!{/cps}"
+            g "{cps=25}Anyways let's get going and find some diamonds eh!{/cps}"
             show g neutral at Grafat_higher
             with dissolve
             jump graf_story
-
 
 
 label graf_story:
@@ -345,10 +419,10 @@ label graf_story:
     "{cps=25}You and Granat venture deeper into the cave, your footsteps echoing through the tunnels.{/cps}"
     "{cps=25}20 minutes pass{/cps}"
     pause 0.3
-    g "{cps=25}We’ve been walking for hours... where is the giant monster we have to defeat? Ugh.{/cps}"
+    g "{cps=25}We've been walking for hours... where is the giant monster we have to defeat? Ugh.{/cps}"
 
     menu:
-        "We’ve been walking for houurrrssssss, where is the giant monster we have to defeat.. Ugh."
+        "We've been walking for houurrrssssss, where is the giant monster we have to defeat.. Ugh."
 
         "It's only been 20 minutes...":
             show g scared at Grafat_higher
@@ -359,7 +433,7 @@ label graf_story:
         "Stay Silent":
             show g scared at Grafat_higher
             with dissolve
-            g "{cps=25}...You’re really not helping my morale here, you know.{/cps}"
+            g "{cps=25}...You're really not helping my morale here, you know.{/cps}"
             jump graf_story1
 
 label graf_story1:
@@ -373,15 +447,15 @@ label graf_story1:
             jump graf_story2
 
         "Pulled it out of a rock":
-            g "{cps=25}So… you’re saying you’re the strongest hero to ever exist… No one’s been able to pull that in millions of years!{/cps}"
+            g "{cps=25}So… you're saying you're the strongest hero to ever exist… No one's been able to pull that in millions of years!{/cps}"
 
             menu:
                 "Yea that's me...":
-                    g "{cps=25}You’re not a very good liar, no one’s ever been able to pull that sword out..{/cps}"
+                    g "{cps=25}You're not a very good liar, no one's ever been able to pull that sword out..{/cps}"
                     jump graf_story2
 
                 "Haha, I was joking, just some sword my grandfather handed down to me. Not sure why he had it.. He was a priest. A really good one though.":
-                    g "{cps=25}Hmmm… my father always told me stories about a priest and his party of heroes. Don’t know how good of a priest he was though, just knew he loved his alcohol.{/cps}"
+                    g "{cps=25}Hmmm… my father always told me stories about a priest and his party of heroes. Don't know how good of a priest he was though, just knew he loved his alcohol.{/cps}"
                     jump graf_story2
 
 label graf_story2:
@@ -393,13 +467,16 @@ label graf_story2:
     "{cps=25}CRASH!!{/cps}"
     with vpunch
     "{cps=25}Rocks start falling down as ash fills the air.{/cps}"
-    g "{cps=25}cough cough{/cps}"
-    g "{cps=25}Ugh all this ash I can’t see a thing!{/cps}"
-    "{cps=25}As the ash settles down, faint footsteps start to emerge, gradually becoming louder and louder.{/cps}"
-    "{cps=25}An enormous monster emerges from the ash, banging its head on the top of the mine due to it’s gigantic size.{/cps}"
     hide g
+    g "{cps=25}cough cough{/cps}"
+    g "{cps=25}Ugh all this ash I can't see a thing!{/cps}"
+    "{cps=25}As the ash settles down, faint footsteps start to emerge, gradually becoming louder and louder.{/cps}"
+    "{cps=25}An enormous monster emerges from the ash, banging its head on the top of the mine due to it's gigantic size.{/cps}"
+    hide g
+    play sound "audio/monster.mp3"
     show monster at monster_higher
-    with dissolve
+    with hpunch
+    pause 0.18
     "{cps=25}The monster towers over you, blocking the path ahead.{/cps}"
     "{cps=25}The monster lets out a deafening roar.{/cps}"
     show g scared at Grafat_higher
@@ -410,7 +487,7 @@ label graf_story2:
         "Stay and Fight":
             jump graf_fight
 
-        "Grab the diamonds and run (Didn’t you want to fight a big monster?)":
+        "Grab the diamonds and run (Didn't you want to fight a big monster?)":
             jump graf_run
 
 label graf_fight:
@@ -428,10 +505,13 @@ label graf_fight:
             jump grafgood_ending
 
 label graf_run:
+    play sound "audio/monster.mp3"
     show monster at monster_higher, monster_chase_shake
+    with hpunch
+    pause 0.15
     "{cps=25}You and Granat quickly scoop up all the diamonds you can and bolt for the entrance of the cave.{/cps}"
     "{cps=25}The monster roars behind you, but the two of you escape the collapsing tunnel.{/cps}"
-    g "{cps=25}YO! SLOW DOOOWWNNNNNN! WHY ARE YOU SO FAST OH MY DAYS{/cps}"
+    g "{cps=25}YOOOOO! SLOW DOOOWWNNNNNN! WHY ARE YOU SO FAST OH MY DAYS{/cps}"
 
     menu:
         "Slow down to help Granat":
@@ -448,8 +528,11 @@ label graf_run:
             jump grafbad_ending
 
 
-label graf_story3:  
+label graf_story3:
+    play sound "audio/monster.mp3"
     show monster at monster_higher, monster_chase_shake
+    with hpunch
+    pause 0.15
     "{cps=25}You and Granat keep running for your lives.{/cps}"
     "{cps=25} As the monster creeps closer and closer, a sense of dread sets in as you haul your heavy bag filled with diamonds.{/cps}"
     "{cps=25}You start panting as your vision goes blurry.{/cps}"
@@ -463,47 +546,95 @@ label graf_story3:
     with fade
     g "{cps=25}Cough cough{/cps}"
     show g dead at Grafat_higher
-    g "{cps=25}Adventurer… help my leg is stuck.. I can’t get out.{/cps}"
+    g "{cps=25}Adventurer… help my leg is stuck.. I can't get out.{/cps}"
 
     menu:
         "Help Granat":
-            "{cps=25}Hearing Granat’s cries, you drag yourself through the rubble and pull at his arm with all your strength.{/cps}"
+            "{cps=25}Hearing Granat's cries, you drag yourself through the rubble and pull at his arm with all your strength.{/cps}"
             "{cps=25}Boulders have buried him up to his waist, but you refuse to let go.{/cps}"
             "{cps=25}Holding Granat by the cloth of his jacket, you keep trying to pull him out… {/cps}"
+            "{cps=25}Desperately, you pull, trying to get him out underneath the rubble{/cps}"
+            "{cps=25}Is this where your story ends?{/cps}"
+            "{cps=25}Desperately trying to escape the grasp of this... thing..{/cps}"
+            "{cps=25}Tightly clinging onto Granat's jacket, you shut your eyes.{/cps}"
+            "{cps=25}STOMP...{/cps}"
+            with hpunch
+            "{cps=25}With each stomp, you feel your life draining slowly from you{/cps}"
+            "{cps=25}STOMP...{/cps}"
+            with vpunch
+            "{cps=25}Please... something... someone... anything{/cps}"
+            "{cps=25}STOMP...{/cps}"
+            with hpunch
+            "{cps=25}Hearing Granat's soft cries, you begin to accept your fate.{/cps}"
+            "{cps=25}STOMP...{/cps}"
+            with vpunch
+            "{cps=25}Darkness fills the air..{/cps}"
             "{cps=25}SMASH{/cps}"
+            play sound "audio/monster.mp3"
+            show monster at monster_higher, monster_hit_shake
+            with hpunch
+            pause 0.22
+            hide monster
+            scene black
+            with vpunch
+            "{cps=10}THE END...?{/cps}"
             return
 
         "Leave Granat":
-            "{cps=25}You frantically run out of the cave as Granat’s desperate cries echo behind you.{/cps}"
+            "{cps=25}You frantically run out of the cave as Granat's desperate cries echo behind you.{/cps}"
+            g "{cps=25}HELP ME DONT LEAVE ME!!!!!{/cps}"
             "{cps=25}You hear one last blood curdling scream from the monster.{/cps}"
             "{cps=25}SMASH.{/cps}"
+            with hpunch
+            hide g
             "{cps=25}Silence…{/cps}"
             "{cps=25}Your ears fill with static…{/cps}"
+            "{cps=25}You left him...{/cps}"
+            "{cps=25}You left him there... helpless{/cps}"
+            "{cps=25}You left him to die...{/cps}"
             "{cps=25}You run…{/cps}"
+            "{cps=25}It's your fault...{/cps}"
+            "{cps=25}ITS{/cps}"
+            "{cps=25}YOUR{/cps}"
+            "{cps=25}FAULT{/cps}"
             "{cps=25}Away from the cave, away from the village…{/cps}"
+            "{cps=25}You feel the cold blood running down your arms.{/cps}"
+            "{cps=25}You abandoned him{/cps}"
+            "{cps=25}ITS{/cps}"
+            "{cps=25}YOUR{/cps}"
+            "{cps=25}FAULT{/cps}"
+            "{cps=25}The blood drips down from your hands. Not stopping...{/cps}"
+            "{cps=25}Don't leave me...{/cps}"
+            "{cps=25}Help me...{/cps}"
+            "{cps=25}The blood is now up to your chest{/cps}"
+            "{cps=25}HeLPMEHeLPMEHeLPMEHeLPMEHeLPMEDONTLEAVEMEDONTLEAVEMEDONTLEAVEMEDONTLEAVEMEDONTLEAVEMEHELPMEHELP.{/cps}"
+            "{cps=25}HELP..{/cps}"
+            "{cps=25}ME.{/cps}"
+            "{cps=10}THE END...?{/cps}"
             return
 
 
-
 label grafbad_ending:
+    stop music fadeout 1.5
     "{cps=25}Panicking, you bolt for the door with Granat draped over your shoulder.{/cps}"
     "{cps=25}Returning to the village without any diamonds, you feel a sense of sadness overcome you.{/cps}"
     "{cps=25}Reflecting upon the decisions you made, if they were the right ones or not. {/cps}"
-    "{cps=25}At least you’re alive.{/cps}"
+    "{cps=25}At least you're alive.{/cps}"
+    "{cps=25}THE END...?{/cps}"
     return
-    
+
 label grafgood_ending:
+    stop music fadeout 1.5
     scene black
     with fade
+
     "{cps=25}Emerging from the mine with a heavy diamond bag, you let out a sigh of relief.{/cps}"
     "{cps=25}Back at the village, capybaras rush over to see your findings.{/cps}"
     "{cps=25}They praise you for saving their home and restoring their supply for years to come.{/cps}"
-
+    "{cps=25}THE END...?{/cps}"
     return
 
-#Grafat Story End
-
-#Vlad Story Start:
+# Vlad Story Start:
 
 label vlad_story:
     $ has_pickaxe = False
@@ -600,6 +731,8 @@ label vlad_tools_done:
 
 label vlad_mine_entrance:
     scene bg cave with fade
+    stop music fadeout 1.5
+    play music "audio/scary.mp3" loop
     show miner at truecenter with dissolve
 
     "{cps=25}The mine swallows daylight the moment you step inside.{/cps}"
@@ -863,6 +996,7 @@ label vlad_run_sequence:
 
 
 label vlad_post_explosion:
+    stop music fadeout 1.5
     scene bg forest with fade
     show miner at truecenter with dissolve
 
@@ -903,28 +1037,7 @@ label vlad_epilogue:
     "{cps=25}You have diamonds. You have stories. You have soot in places soot should not be.{/cps}"
     v "{cps=25}You come back sometime, yes? Mine get lonely.{/cps}"
     "{cps=25}From somewhere deep in the dark, very faint, you hear an old work song.{/cps}"
-    "{cps=25}THE END{/cps}"
+    "{cps=25}THE END...?{/cps}"
     return
 
-#Vlad Story End
-    # Show a background. This uses a placeholder by default, but you can
-    # add a file (named either "bg room.png" or "bg room.jpg") to the
-    # images directory to show it.
-
-    # scene bg room
-
-    # # This shows a character sprite. A placeholder is used, but you can
-    # # replace it by adding a file named "eileen happy.png" to the images
-    # # directory.
-
-    # show eileen happy
-
-    # # These display lines of dialogue.
-
-    # e "You've created a new Ren'Py game."
-
-    # e "Once you add a story, pictures, and music, you can release it to the world!"
-
-    # # This ends the game.
-
-    return
+# This ends the game.
